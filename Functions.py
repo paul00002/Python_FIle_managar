@@ -1,23 +1,25 @@
 # Questo script contine le funzione per modifica di file,
 import os
 from  glob import glob
+from typing import Any
+import pandas as pd
 user=os.environ['USERPROFILE']
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
        
 class File(): 
-    def __init__(self,path_file ) -> None:
-        if os.path.exists(path_file):
-           self.namefile=os.path.basename(path_file)
+    def __init__(self,path ) -> None:
+        if os.path.exists(path):
+           self.namefile=os.path.basename(path)
            self.name=self.namefile.split('.')[0]
            self.root=self.namefile.split('.')[1]
-           self.rootpath=path_file.replace(self.namefile,'')
-           self.path_file=path_file
+           self.rootpath=path.replace(self.namefile,'')
+           self.path=path
         else:
-          raise ValueError('\n-Invalid file path \n-Enter a valid Argument \n-Argument: "path_file"')
+          raise ValueError('\n-Invalid file path \n-Enter a valid Argument \n-Argument: "path"')
         
     def copy(self,new_path):
         if  os.path.exists(new_path):
-            os.system('copy {Pfile} {Npath}'.format(Pfile=self.path_file,Npath=new_path))
+            os.system('copy {Pfile} {Npath}'.format(Pfile=self.path,Npath=new_path))
             return True
         else:
             return False
@@ -30,28 +32,31 @@ class File():
             return False
         
 class Director():
-    def __init__(self,path_dir) -> None:
-        self.path_dir=path_dir
-        self.Files= {x:File(os.path.join(self.path_dir,x) ) for x in  os.listdir(self.path_dir)}
-        
+    def __init__(self,path) -> None:
+        self.path=path
+        self.namefile=os.path.basename(path)
+      
+    def load(self):
+        return pd.DataFrame(list(self.type_path()),columns=["Name_file","Object","Type"])
+          
     def delete(self,name):
         if name in self.Files:
-          os.system('del {Pfile}'.format(Pfile=self.Files[name].path_file))
-          if os.path.exists(self.Files[name].path_file):
+          os.system('del {Pfile}'.format(Pfile=self.Files[name].path))
+          if os.path.exists(self.Files[name].path):
               return False
           else:
               return True
           
     def Move(self,name,new_path):
         if  os.path.exists(new_path):
-            os.system('move {Pfile} {Npath}'.format(Pfile=self.Files[name].path_file,Npath=new_path))
+            os.system('move {Pfile} {Npath}'.format(Pfile=self.Files[name].path,Npath=new_path))
             return True 
         else:
             return False
     
     def copy(self,name,new_path):
         if  os.path.exists(new_path):
-            os.system('copy {Pfile} {Npath}'.format(Pfile=self.Files[name].path_file,Npath=new_path))
+            os.system('copy {Pfile} {Npath}'.format(Pfile=self.Files[name].path,Npath=new_path))
             return True 
         else:
             return False
@@ -63,18 +68,13 @@ class Director():
             return False
 
     def type_path(self):
-        for x in os.listdir(self.path_dir):
+        for x in os.listdir(self.path):
             try: 
                 x.split('.')[1]
-                yield File(os.path.join(self.path_dir,x))
+                yield x,File(os.path.join(self.path,x)),"File",
             except:
-                yield x,'directory'
-    
-
-def Discovery():
-    return {desktop:list(type_path(desktop))}
-    
+                yield x,Director(os.path.join(self.path,x)),"Director"
+   
 if __name__=='__main__':
-   #dirc=Director(os.path.join(desktop,'nn'))
-   #print(dirc.copy('pino.txt','C:\\Users\\PaulHernanAlarconPac\\Desktop\\Python_FIle_managar\\per_pino'))
-   print(Discovery())
+   dire=Director(desktop).load()
+   fi=dire['Object'][0]
