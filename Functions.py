@@ -1,9 +1,7 @@
 # Questo script contine le funzione per modifica di file,
 import os
-from  glob import glob
-from typing import Any
+#from  glob import glob
 import pandas as pd
-import pandasql as ps
 import duckdb
 user=os.environ['USERPROFILE']
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
@@ -33,7 +31,7 @@ class File():
          else:
             return False
     def open(self):
-        os.system(os.path.join(file_m.rootpath,'"'+file_m.namefile+'"'))
+        os.system(os.path.join(self.rootpath,'"'+self.namefile+'"'))
         
 class Director():
     def __init__(self,path) -> None:
@@ -84,10 +82,22 @@ class Director():
             except:
                 yield x,Director(os.path.join(self.path,x)),"Director",None
    
+class sql:
+       def __init__(self,df) -> None:
+           self.df=df
+      
+       def sql_parser(self):
+           l=[]
+           for x in self.df.split(' '):
+               if x!='':
+                  l.append(x)
+           
+       
 if __name__=='__main__':
    dire=Director(desktop).Load()
    pf=dire.Pd_DataFrame()
-   files=pf.loc[pf['Type'].isin(["File"]) & pf['Root'].isin(["lnk"])].iloc[:,0:2]
-   print(duckdb.query("SELECT * FROM pf").df())
+   files=pf.loc[pf['Root'].isin(["csv"])].iloc[:,0:2]
+   #file_m1=duckdb.query("SELECT Object FROM pf WHERE Root='csv'").df().iloc[0].values[0]
    #file_m=files['Object'][20]
-   #print(file_m.open())
+   #print(files["Object"].iloc[0].open())
+   print(sql('Select * from db ').sql_parser())
