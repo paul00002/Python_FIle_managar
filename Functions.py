@@ -62,13 +62,13 @@ class Director():
         else: 
             return False
 
-def type_path(path):
-    for x in os.listdir(path):
-        try: 
-            x.split('.')[1]
-            yield x,'file'
-        except:
-            yield x,'directory'
+    def type_path(self):
+        for x in os.listdir(self.path_dir):
+            try: 
+                x.split('.')[1]
+                yield File(os.path.join(self.path_dir,x))
+            except:
+                yield x,'directory'
     
 
 def Discovery():
