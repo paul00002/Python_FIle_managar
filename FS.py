@@ -33,8 +33,7 @@ class Director:
     def __init__(self,path) -> None:
         self.path=path
         self.namefile=os.path.basename(path)
-        
-      
+           
     def Load(self):
         self.load=self.Type_path()
         self.files={x:[y,z,r] for x,y,z,r in self.load}
