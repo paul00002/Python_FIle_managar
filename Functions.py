@@ -1,12 +1,8 @@
 # Questo script contine le funzione per modifica di file,
 import os
-#from  glob import glob
 import pandas as pd
-import duckdb
-user=os.environ['USERPROFILE']
-desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') 
        
-class File(): 
+class File: 
     def __init__(self,path ) -> None:
         if os.path.exists(path):
            self.namefile=os.path.basename(path)
@@ -33,18 +29,20 @@ class File():
     def open(self):
         os.system(os.path.join(self.rootpath,'"'+self.namefile+'"'))
         
-class Director():
+class Director:
     def __init__(self,path) -> None:
         self.path=path
         self.namefile=os.path.basename(path)
+        
       
     def Load(self):
         self.load=self.Type_path()
-        self.files={x:z for x,y,z,r in self.load}
+        self.files={x:[y,z,r] for x,y,z,r in self.load}
         return self
         
     def Pd_DataFrame(self):
-        return pd.DataFrame(list(self.Type_path()),columns=["Name_file","Object","Type","Root"])
+        self.pb=pd.DataFrame(list(self.Type_path()),columns=["Name_file","Object","Type","Root"])
+        return self.pb
     
     def Delete(self,name):
         if name in self.files:
@@ -81,23 +79,20 @@ class Director():
                 yield x,File(os.path.join(self.path,x)),"File",x.split('.')[1]
             except:
                 yield x,Director(os.path.join(self.path,x)),"Director",None
-   
-class sql:
-       def __init__(self,df) -> None:
-           self.df=df
-      
-       def sql_parser(self):
-           l=[]
-           for x in self.df.split(' '):
-               if x!='':
-                  l.append(x)
-           
-       
+     
+    def find(self,name):
+        if self.load:
+          self.Load()
+        mblis=[]
+        for key in self.files.keys():
+            if key.find(name)!=-1:
+                mblis.append(key)
+        return mblis
+    
 if __name__=='__main__':
+   user=os.environ['USERPROFILE']
+   desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop') 
    dire=Director(desktop).Load()
    pf=dire.Pd_DataFrame()
    files=pf.loc[pf['Root'].isin(["csv"])].iloc[:,0:2]
-   #file_m1=duckdb.query("SELECT Object FROM pf WHERE Root='csv'").df().iloc[0].values[0]
-   #file_m=files['Object'][20]
-   #print(files["Object"].iloc[0].open())
-   print(sql('Select * from db ').sql_parser())
+   print(dire.find('bot'))
